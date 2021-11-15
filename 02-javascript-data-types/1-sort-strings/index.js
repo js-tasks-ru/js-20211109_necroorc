@@ -6,12 +6,14 @@
  */
 export function sortStrings(arr, param = 'asc') {
   const arrClone = [...arr];
+  const locales = ['ru', 'en'];
+  const collatorOptions = { caseFirst: 'upper' };
   switch (param) {
     case 'asc':
       return arrClone.sort((a, b) =>
-        a.localeCompare(b, ['ru', 'en'], { caseFirst: 'upper' }));
+        a.localeCompare(b, locales, collatorOptions));
     case 'desc':
       return arrClone.sort((a, b) =>
-        b.localeCompare(a, ['ru', 'en'], { caseFirst: 'upper' }));
+        b.localeCompare(a, locales, collatorOptions));
   }
 }
