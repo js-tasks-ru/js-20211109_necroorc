@@ -2,7 +2,6 @@ export default class SortableTable {
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig;
     this.sortingData = Array.isArray(data) ? data : data.data;
-    this.templateFn = (data = []) => '';
     this.subElements = {};
     this.render();
   }
@@ -22,23 +21,32 @@ export default class SortableTable {
     const wrapper = document.createElement('div');
     wrapper.innerHTML = this.getTemplate();
     this.element = wrapper.firstElementChild;
-    this.subElements.body = this.element.querySelector('.sortable-table__body');
-    this.subElements.head = this.element.querySelector('.sortable-table__header');
+    this.subElements = this.getSubElements(this.element)
     this.renderHeader();
     this.renderBody();
   }
 
+  getSubElements(element) {
+    const result = {};
+    const elements = element.querySelectorAll('[data-element]');
+    for (const subElement of elements) {
+      const name = subElement.dataset.element;
+      result[name] = subElement;
+    }
+    return result;
+  }
+
   renderHeader(fieldValue = '', order = '') {
-    if (this.subElements.head.firstElementChild) {
-      const allHeaderCells = this.subElements.head.querySelectorAll('[data-order]');
+    if (this.subElements.header.firstElementChild) {
+      const allHeaderCells = this.subElements.header.querySelectorAll('[data-order]');
       allHeaderCells.forEach((cell) => cell.dataset.order = '');
-      const cellRerender = this.subElements.head.querySelector(`[data-id="${fieldValue}"]`);
+      const cellRerender = this.subElements.header.querySelector(`[data-id="${fieldValue}"]`);
       cellRerender.dataset.order = `${order}`;
       return;
     }
     function renderHeaderCell(configPart) {
-      if ('template' in configPart) {
-        this.templateFn = configPart.template;
+      if (configPart.template) {
+        this.template = configPart.template
       }
       return `
       <div class="sortable-table__cell" data-id="${configPart.id}" data-sortable="${configPart.sortable}" data-order="">
@@ -50,7 +58,7 @@ export default class SortableTable {
       `
     }
     for (const configPart of this.headerConfig) {
-      this.subElements.head.insertAdjacentHTML("beforeend", renderHeaderCell.call(this, configPart))
+      this.subElements.header.insertAdjacentHTML("beforeend", renderHeaderCell.call(this, configPart))
     }
   }
 
@@ -59,7 +67,7 @@ export default class SortableTable {
     function renderLink(dataItem) {
       return `
       <a href="/products/${dataItem.id}" class="sortable-table__row">
-        ${this.templateFn(dataItem.images)}
+        ${this.template ? this.template(dataItem.images) : ''}
         <div class="sortable-table__cell">${dataItem.title}</div>
         <div class="sortable-table__cell">${dataItem.price}</div>
         <div class="sortable-table__cell">${dataItem.quantity}</div>
@@ -77,15 +85,9 @@ export default class SortableTable {
       desc: -1
     }
 
-    const sortTypes = {
-      title: 'string',
-      quantity: 'number',
-      price: 'number',
-      sales: 'number'
-    }
-
     const direction = directions[orderValue];
-    const sortType = sortTypes[fieldValue];
+    const column = this.headerConfig.find(item => item.id === fieldValue);
+    const { sortType } = column;
 
     switch (sortType) {
       case 'string':
@@ -111,5 +113,6 @@ export default class SortableTable {
 
   destroy() {
     this.remove();
+    this.subElements = {}
   }
 }

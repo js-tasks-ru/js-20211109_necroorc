@@ -1,5 +1,5 @@
 export default class NotificationMessage {
-  static isShow = false;
+  static prevNotification;
   static timerID = null;
 
   constructor(message = 'DefaultMessage', {duration = 0, type = ''} = {}) {
@@ -29,23 +29,23 @@ export default class NotificationMessage {
   }
 
   show(node = document.body) {
-    if (NotificationMessage.isShow) {
-      this.remove();
-      clearTimeout(NotificationMessage.timerID);
+    if (NotificationMessage.prevNotification) {
+      NotificationMessage.prevNotification.remove();
     }
     node.append(this.element);
-    NotificationMessage.isShow = true;
     NotificationMessage.timerID = setTimeout(() => {
       this.remove();
-      NotificationMessage.isShow = false;
     }, this.duration)
+    NotificationMessage.prevNotification = this;
   }
 
   remove() {
     this.element.remove();
+    clearTimeout(NotificationMessage.timerID);
   }
 
   destroy() {
     this.remove();
+    NotificationMessage.prevNotification = null;
   }
 }
