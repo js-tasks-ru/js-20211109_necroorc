@@ -6,8 +6,6 @@ class Tooltip {
       return Tooltip.singleton
     }
     else {
-      this.tooltipOnOver = this.tooltipOnOver.bind(this);
-      this.removeTooltip = this.removeTooltip.bind(this);
       Tooltip.singleton = this;
     }
   }
@@ -22,23 +20,32 @@ class Tooltip {
     document.body.append(this.element);
   }
 
-  tooltipOnOver(event) {
+  getCoordinates(event) {
+    this.y = event.clientY + 5;
+    this.x = event.clientX + 5;
+    this.toolTip.style.top = this.y + 'px';
+    this.toolTip.style.left = this.x + 'px';
+  }
+
+  tooltipOnOver = (event) => {
     if (event.target.dataset.tooltip === undefined) return;
     this.render();
     this.toolTip = document.createElement('div');
     this.toolTip.innerHTML = event.target.dataset.tooltip;
     this.toolTip.className = 'tooltip';
-    let y = event.clientY;
-    let x = event.clientX;
-    this.toolTip.style.top = y + 'px';
-    this.toolTip.style.left = x + 'px';
+    this.getCoordinates(event);
     this.element.append(this.toolTip);
+    event.target.addEventListener('pointermove', this.tooltipOnMove)
   }
 
-  removeTooltip(event) {
+  removeTooltip = (event) => {
     if (event.target.dataset.tooltip === undefined) return;
     this.remove();
   }
+
+  tooltipOnMove = (event) => {
+    this.getCoordinates(event);
+}
 
   attachEventListeners() {
     document.addEventListener('pointerover', this.tooltipOnOver);
