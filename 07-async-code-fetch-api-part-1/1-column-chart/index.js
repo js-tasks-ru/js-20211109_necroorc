@@ -62,7 +62,6 @@ export default class ColumnChart {
   }
 
   getColumnProps(data) {
-    if (!this.data || this.data.length === 0) return;
     const maxValue = Math.max(...data);
     const scale = 50 / maxValue;
 
