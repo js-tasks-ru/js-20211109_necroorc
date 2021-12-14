@@ -212,10 +212,10 @@ export default class ProductForm {
     return values;
   }
 
-  dispatchEvent(ID) {
+  dispatchEvent(id) {
     let customizedEvent;
     if (this.productId) {
-      customizedEvent = new CustomEvent('product-updated', { detail: ID })
+      customizedEvent = new CustomEvent('product-updated', { detail: id })
     } else {
       customizedEvent = new CustomEvent('product-saved')
     }
@@ -265,9 +265,8 @@ export default class ProductForm {
         uploadImage.classList.remove('is-loading');
         uploadImage.disabled = false;
         fileInput.remove();
-        alert('Изображение загружено');
       } catch(error) {
-        alert('Ошибка загрузки изображения');
+        console.error('something went wrong', error);
       }
     })
     fileInput.hidden = true;
