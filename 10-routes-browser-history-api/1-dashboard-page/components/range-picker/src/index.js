@@ -65,6 +65,7 @@ export default class RangePicker {
     const {input, selector} = this.subElements;
 
     document.addEventListener('click', this.onDocumentClick, true);
+
     input.addEventListener('click', () => this.toggle());
     selector.addEventListener('click', event => this.onSelectorClick(event));
   }
@@ -164,8 +165,10 @@ export default class RangePicker {
 
     // text-transform: capitalize
     const monthStr = date.toLocaleString('ru', {month: 'long'});
+    const yearStr = date.toLocaleString('ru', {year: 'numeric'});
 
     let table = `<div class="rangepicker__calendar">
+      <div class="rangepicker__year-indicator">${yearStr}</div>
       <div class="rangepicker__month-indicator">
         <time datetime=${monthStr}>${monthStr}</time>
       </div>
@@ -175,8 +178,6 @@ export default class RangePicker {
       <div class="rangepicker__date-grid">
     `;
 
-    // first day of month starts after a space
-    // * * * 1 2 3 4
     table += `
       <button type="button"
         class="rangepicker__cell"
@@ -241,13 +242,12 @@ export default class RangePicker {
   dispatchEvent() {
     this.element.dispatchEvent(new CustomEvent('date-select', {
       bubbles: true,
-      detail: this.selected
+      detail: this.selected,
     }));
   }
 
   remove() {
     this.element.remove();
-    // TODO: Warning! To remove listener MUST be passes the same event phase
     document.removeEventListener('click', this.onDocumentClick, true);
   }
 
@@ -260,7 +260,6 @@ export default class RangePicker {
       from: new Date(),
       to: new Date()
     };
-
     return this;
   }
 }
